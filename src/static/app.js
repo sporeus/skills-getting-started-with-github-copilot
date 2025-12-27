@@ -33,18 +33,18 @@ document.addEventListener("DOMContentLoaded", () => {
         // Build participants HTML
         const participants = details.participants || [];
         const participantsHtml = participants.length
-          ? `<ul style="margin:0;padding-left:18px;">${participants
-              .map((p) => `<li style="margin:4px 0;">${escapeHtml(p)}</li>`)
+          ? `<ul class="participants-list">${participants
+              .map((p) => `<li>${escapeHtml(p)}</li>`)
               .join("")}</ul>`
-          : `<p style="margin:0;color:#666;font-style:italic;">No participants yet</p>`;
+          : `<p class="participants-none">No participants yet</p>`;
 
         activityCard.innerHTML = `
           <h4>${escapeHtml(name)}</h4>
           <p>${escapeHtml(details.description)}</p>
           <p><strong>Schedule:</strong> ${escapeHtml(details.schedule)}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
-          <div class="participants" style="margin-top:10px;padding:10px;background:#f6fbff;border-radius:8px;border:1px solid #e1f0ff;">
-            <h5 style="margin:0 0 8px 0;font-size:0.95rem;color:#0366d6">Participants</h5>
+          <div class="participants-section">
+            <h5>Participants</h5>
             ${participantsHtml}
           </div>
         `;
