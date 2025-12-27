@@ -33,10 +33,10 @@ document.addEventListener("DOMContentLoaded", () => {
         // Build participants HTML
         const participants = details.participants || [];
         const participantsHtml = participants.length
-          ? `<ul class="participants-list">${participants
-              .map((p) => `<li>${escapeHtml(p)}</li>`)
+            ? `<ul class="participants-list">${participants
+              .map((p) => `<li style="list-style-type:none;display:flex;align-items:center;gap:6px;">${escapeHtml(p)} <span class="delete-participant" data-email="${escapeHtml(p)}" title="Remove participant" style="cursor:pointer;color:#c62828;font-weight:bold;font-size:1.1em;">&#10006;</span></li>`)
               .join("")}</ul>`
-          : `<p class="participants-none">No participants yet</p>`;
+            : `<p class="participants-none">No participants yet</p>`;
 
         activityCard.innerHTML = `
           <h4>${escapeHtml(name)}</h4>
@@ -48,6 +48,44 @@ document.addEventListener("DOMContentLoaded", () => {
             ${participantsHtml}
           </div>
         `;
+
+        // Add delete icon event listeners after rendering
+        setTimeout(() => {
+          activityCard.querySelectorAll('.delete-participant').forEach(icon => {
+            icon.addEventListener('click', async (e) => {
+              const email = icon.getAttribute('data-email');
+              const activityName = name;
+              if (confirm(`Remove ${email} from ${activityName}?`)) {
+                try {
+                  const response = await fetch(`/activities/${encodeURIComponent(activityName)}/unregister?email=${encodeURIComponent(email)}`, {
+                    method: "POST"
+                  });
+                  const result = await response.json();
+                  if (response.ok) {
+                    messageDiv.textContent = result.message;
+                    messageDiv.className = "success";
+                    messageDiv.classList.remove("hidden");
+                    fetchActivities();
+                  } else {
+                    messageDiv.textContent = result.detail || "Failed to unregister participant.";
+                    messageDiv.className = "error";
+                    messageDiv.classList.remove("hidden");
+                  }
+                  setTimeout(() => {
+                    messageDiv.classList.add("hidden");
+                  }, 5000);
+                } catch (error) {
+                  messageDiv.textContent = "Error contacting server.";
+                  messageDiv.className = "error";
+                  messageDiv.classList.remove("hidden");
+                  setTimeout(() => {
+                    messageDiv.classList.add("hidden");
+                  }, 5000);
+                }
+              }
+            });
+          });
+        }, 0);
 
         activitiesList.appendChild(activityCard);
 
